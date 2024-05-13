@@ -13,9 +13,10 @@ typedef struct img
     int width, height, channels;
 } IMAGE;
 
+// Headers das funções
 IMAGE grayscale(IMAGE img);
 void output_filename(char *filename, char *output);
-void convert_to_ascii(unsigned char *img_data ,FILE *file, int height, int width, int channels);
+void convert_to_ascii(unsigned char *img_data, FILE *file, int height, int width, int channels);
 
 int main(int argc, char *argv[])
 {
@@ -23,12 +24,16 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         printf("Voce precisa fornecer uma imagem\n");
+        printf("use o comando: ./ascii 'caminho da imagem'\n");
         return -1;
     }
 
     // Carrega a imagem na memória
     IMAGE img;
     img.data = stbi_load(argv[1], &img.width, &img.height, &img.channels, 0);
+    int new_width = img.width;
+    int new_height = img.height;
+    int new_channels = img.channels;
 
     if (!img.data)
     {
@@ -37,17 +42,20 @@ int main(int argc, char *argv[])
     }
 
     // Redimensiona a imagem
-    int new_width = 200;
-    int new_height = 150;
-    int new_channels = img.channels;
-    stbir_resize_uint8(img.data, img.width, img.height, 0, img.data, new_width, new_height, 0, new_channels);
+    if (img.width > 500 && img.height > 450)
+    {
+        new_width = 500;
+        new_height = 450;
+        new_channels = img.channels;
+        stbir_resize_uint8(img.data, img.width, img.height, 0, img.data, new_width, new_height, 0, new_channels);
+    }
 
     // Aplica filtro preto e branco
     img = grayscale(img);
 
     // Gera o nome do arquivo.txt e cria o arquivo que será armazenado a ASCII-ART
     char out[100];
-    char path_output[100] = "resultados/";
+    char path_output[100] = "ascii-arts/";
     output_filename(argv[1], out);
     strcat(path_output, out);
 
@@ -66,7 +74,6 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-// Aplica o filtro preto e branco na imagem
 IMAGE grayscale(IMAGE img)
 {
     for (unsigned char *p = img.data; p != img.data + img.height * img.width * img.channels; p += img.channels)
@@ -102,7 +109,7 @@ void output_filename(char *filename, char *output)
     strcat(output, ".txt");
 }
 
-void convert_to_ascii(unsigned char *img_data ,FILE *file, int height, int width, int channels)
+void convert_to_ascii(unsigned char *img_data, FILE *file, int height, int width, int channels)
 {
     char chars[] = "@%#*+=-:. ";
     int charsLen = strlen(chars);

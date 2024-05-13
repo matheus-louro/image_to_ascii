@@ -1,5 +1,5 @@
-SRC=main.c
-BIN=main
+SRC=ascii.c
+BIN=ascii
 CC=gcc
 LIBS=-lm
 
